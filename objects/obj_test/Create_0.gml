@@ -1,3 +1,2 @@
-cam = (new Lens(0, 0, 0, room_width/2, room_height/2) );
-cam.SetFollowBoundsUse(false, false);
-cam.AddFollowTarget("mouse");
+var _w = room_width*.5, _h = room_height*.5
+lensCamera = new Lens(0, _w, _h, _w, _h);

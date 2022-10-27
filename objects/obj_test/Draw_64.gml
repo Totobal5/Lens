@@ -1,3 +1,4 @@
+draw_set_color(c_fuchsia)
 draw_text(8, 8, @"Q/E - Rotate
 W/S - Move Up/Down
 A/D - Move Left/Right
@@ -9,4 +10,5 @@ Try use all events at the same time!
 ");
 
 
-draw_text(8, 180, cam);
+draw_text(8, 180, lensCamera);
+draw_set_colour(c_white);

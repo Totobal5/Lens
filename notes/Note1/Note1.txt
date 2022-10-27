@@ -1,0 +1,48 @@
+					var _cx = animcurve_channel_evaluate(_channels[0], followTime[0] );
+					var _cy = animcurve_channel_evaluate(_channels[1], followTime[1] );
+					
+					
+					followTargetX = 0;
+					followTargetY = 0;
+						
+					// Si se han movido los objetivos
+					#region Obtener posiciones
+					for (var i=0; i<n; i=i+1) {
+						var _ins = followTargets[| i];
+						if (instance_exists(_ins) ) {
+							followTargetX = followTargetX + _ins.x;
+							followTargetY = followTargetY + _ins.y;
+						} 
+						else if (is_struct(_ins) ) {
+							followTargetX = followTargetX + _ins[$ "x"] ?? 0;
+							followTargetY = followTargetY + _ins[$ "y"] ?? 0;
+						}
+						else {
+							ds_list_delete(followTargets, i);
+							n = n - 1;
+						}
+					}
+					
+					#endregion
+					
+					// Obtener media
+					if (n > 0) {
+						followTargetX = followTargetX / n;
+						followTargetY = followTargetY / n;
+					}
+					
+					// Pasarlo a relativo
+					var _w = (w * wscale) * .5, _h = (h * hscale) * .5
+					
+					followTargetX = -(w - followTargetX);
+					followTargetY = -(h - followTargetY);
+					
+					// Limites
+					if (followLimitX != infinity) followTargetX = clamp(followTargetX, 0, followLimitX);
+					if (followLimitY != infinity) followTargetY = clamp(followTargetY, 0, followLimitY);
+
+					followX = lerp(followX, followTargetX, _cx);
+					followY = lerp(followY, followTargetY, _cy);
+					
+					followTime[0] = followTime[0] + (1 / _speedX * deltaTime);
+					followTime[1] = followTime[1] + (1 / _speedY * deltaTime);
