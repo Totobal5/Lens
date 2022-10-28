@@ -1,11 +1,9 @@
 // Feather ignore all
-if keyboard_check(ord("Q") ) {
-	lensCamera.addX(1);
-}
+if keyboard_check(ord("Q") ) {lensCamera.addX( 1); }
+if keyboard_check(ord("W") ) {lensCamera.addX(-1); }
 
-if keyboard_check(ord("W") ) {
-	lensCamera.addX(-1);
-}
+if keyboard_check(ord("A") ) {lensCamera.addW( 1); }
+if keyboard_check(ord("S") ) {lensCamera.addW(-1); }
 
 if keyboard_check_pressed(ord("P") ) {
 	lensCamera.shake(1, true, irandom(64), irandom(64) ); // 1 segundo
@@ -14,7 +12,7 @@ if keyboard_check_pressed(ord("P") ) {
 
 if keyboard_check_pressed(ord("O") ) {
 	if (!lensCamera.isFollow()) {
-		lensCamera.follow(15, 15, 5);
+		lensCamera.follow(4, 4, 8);
 	}
 	else {
 		lensCamera.stopFollow ();

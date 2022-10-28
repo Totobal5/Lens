@@ -22,80 +22,53 @@ function Lens(_view, _x, _y, _w, _h, _angle=0) constructor {
 	// Tamaño y posicion
 	w = _w;
 	h = _h;
+	hPort = 0;
+	wPort = 0;
 	relation = w / min(1, h);
 	
 	wscale = 1;
 	hscale = 1;
-	hPort = 0;
-	wPort = 0;
-	
-	// Posicion de origen derecha
-	xr = _x; // x right e y right
-	yr = _y;
+	x1 = _x - _w; // left
+	y1 = _y - _h; // top
+	x2 = _x;	// right
+	y2 = _y;	// bottom 
 
-	// Posicion posicion de origen izquierda
-	xl = _x - w; // x left and y left
-	yl = _y - h;
+	// Posicion final que se coloca la camara (es el centro de x1,y1 e x2,y2)
+	x = _x - _w*.5;
+	y = _x - _h*.5;
 	
-	// Posicion de origen centro
-	xc = xr - w*.5;
-	yc = yr - h*.5;
+	// Camera
+	camera_set_view_pos (camera, x, y);
+	camera_set_view_size(camera, w, h);
 	
-	// Posicion con 
-	
-	// Posicion con el centro de la camara como origen
-	x = xc; // posicion absolutas (se actualiza automaticamente)
-	y = yc;
-	xprev = x;
-	yprev = y;
-
 	angle = _angle; // Posiciones teniendo en cuenta el centro y angulo de la camara
 	var _sin = dsin(angle), _cos = dcos(angle);
-	xangle = x*_cos + y*_sin;
-	yangle = x*_sin + y*_cos;
+	xangle = x1*_cos + y1*_sin;
+	yangle = x1*_sin + y1*_cos;
 
 	// limites de la camara global, infinity no posee limites
-	xLimitMin = infinity;
-	xLimitMax = infinity;
+	xLimitMin = -infinity;
+	xLimitMax =  infinity;
 	
-	yLimitMin = infinity;
-	yLimitMax = infinity;
+	yLimitMin = -infinity;
+	yLimitMax =  infinity;
 	
 	// Control
 	deltaTime = 0;
 	gameSpeed = game_get_speed(gamespeed_fps);
 	step = time_source_create(time_source_game, 1, time_source_units_frames, function() {
 		if (view_camera[view] != camera) {updateCamera(); }
-		
 		// Control
-		deltaTime = (delta_time * 0.000001) * gameSpeed;
+		deltaTime = __LENS_DEBUG ? 1 : (delta_time * 0.000001) * gameSpeed;
 		
-		// Tamaño
-		var _w = max(1, (w * wscale) );
-		var _h = max(1, (h * hscale) ); 
+		var _w = max(1, w * wscale);
+		var _h = max(1, h * hscale);
 		camera_set_view_size(camera, _w, _h);
-
-		// Posicion del centro
-		x = (xl + _w*.5) + eventX();
-		y = (yl + _h*.5) + eventY();
+		_w*=.5; _h*=.5;
 		
-		// Limites global
-		if (xLimitMin != infinity && xLimitMax != infinity) { // Limite x
-			x = clamp(x, xLimitMin, xLimitMax); 
-		}
-		
-		if (yLimitMin != infinity && yLimitMax != infinity) { // Limite y
-			y = clamp(y, yLimitMin, yLimitMax); 
-		}
-		
-		camera_set_view_pos (camera, x, y);
-		
-		// Angulo
-		camera_set_view_angle(camera, angle);
-		var _sin = dsin(angle), _cos = dcos(angle);
-		xangle = x*_cos + y*_sin;
-		yangle = x*_sin + y*_cos;
-		
+		x = (x1 + _w) + zoomX;
+		y = (y1 + _h) + zoomY;
+		camera_set_view_pos(camera, x + shakeX, y + shakeY);
 	}, [], -1);
 
 	var _same = function() {} // Evitar crear tantas funciones
@@ -113,16 +86,14 @@ function Lens(_view, _x, _y, _w, _h, _angle=0) constructor {
 	followTime = [0, 0]; // Tiempo
 	followTargetX = 0;
 	followTargetY = 0;
-	followX = 0; // X e Y que sigan a los objetivos
-	followY = 0;
 	
-	followAfterX = noone; // Guardar posicion x e y anterior
-	followAfterY = noone;
+	followSaveX = noone; // Guardar posicion x e y anterior
+	followSaveY = noone;
 	
 	followLimitX = infinity; // limites del follow, infinity no posee limites
 	followLimitY = infinity;
-	followStep  = time_source_create(step		, 1, time_source_units_frames, _same);
-	followAfter = time_source_create(followStep , 1, time_source_units_frames, _same);
+	followStep = time_source_create(step, 1, time_source_units_frames, _same);
+	followSave = time_source_create(followStep, 1, time_source_units_frames, _same);
 	
 	#endregion
 
@@ -155,7 +126,8 @@ function Lens(_view, _x, _y, _w, _h, _angle=0) constructor {
 
 		#region Basic
 	/// @param {real} view_index
-	static setCamera = function(_view) {
+	static setCamera = function(_view) 
+	{
 		if (view_enabled != false) view_enabled = true;
 		view = _view;
 		view_set_camera (view, camera); // Establecer la camara a esta vista
@@ -166,7 +138,8 @@ function Lens(_view, _x, _y, _w, _h, _angle=0) constructor {
 	
 	
 	/// @desc Actualiza la camara
-	static updateCamera = function() {
+	static updateCamera = function() 
+	{
 		if (!view_enabled) view_enabled = true;
 		view_set_camera (view, camera); // Establecer la camara a esta vista
 		view_set_visible(view, true);	// Poner en true la camara
@@ -174,105 +147,105 @@ function Lens(_view, _x, _y, _w, _h, _angle=0) constructor {
 	
 	
 	/// @param {real} x
-	static setX = function(_x) {
-		xr = _x;
-		xl = xr - w;
-		xc = xr - w*.5;
+	static setX = function(_x) 
+	{
+		x1 = _x;
+		x2 = _x + getW();
 		return self;
 	}
 	
 	
 	/// @param {real} y
-	static setY = function(_y) {
-		yr = _y;
-		yl = yr - h;
-		yc = yr - h*.5;
+	static setY = function(_y) 
+	{
+		y1 = _y;
+		y2 = _y + getH();
 		return self;
-	}	
+	}
 	
 	
 	/// @param {real} x
 	/// @param {real} y
-	static setXY = function(_x, _y) {
+	static setXY = function(_x, _y) 
+	{
 		setX(_x); setY(_y);
 		return self;
 	}
 	
 	
 	/// @param {real} x
-	static addX = function(_x) {
-		xr = xr + _x;
-		xl = xr -  w;
-		xc = xr - w*.5;
+	static addX = function(_x)
+	{
 		return self;
 	}
 	
 	
 	/// @param {real} y
-	static addY = function(_y) {
-		yr = yr + _y;
-		yl = yr -  h;
-		yc = yr - h*.5;
+	static addY = function(_y) 
+	{
 		return self;
 	}	
 	
 	
 	/// @param {real} x
 	/// @param {real} y	
-	static addXY = function(_x, _y) {
+	static addXY = function(_x, _y) 
+	{
 		addX(_x); addY(_y);
 		return self;
 	}
 	
 	
+	static getW = function() {return max(1, (w*wscale) ); }
+	static getH = function() {return max(1, (h*hscale) ); }
+	
 	/// @param {real} width
-	static setW = function(_w) {
-		w = _w;
-		relation = w / min(1, h);
-		xl = xr - w;
-		xr = xl + w;
-		xc = xr - w*.5;
+	static setW = function(_v) 
+	{
 		return self;
 	}
 	
 	
 	/// @param {real} height
-	static setH = function(_h) {
-		h = _h;
-		relation = w / min(1, h);
-		yl = yr - h;
-		yr = yl + h;
-		yc = yr - h*.5;
+	static setH = function(_v) 
+	{
 		return self;
 	}
 	
 	
 	/// @param {real} width
 	/// @param {real} height
-	static setWH = function(_w, _h) {
-		w = _w;
-		h = _h;
-		relation = w / min(1, h);
-		xl = xr - w;
-		xr = xl + w;
-		xc = xr - w*.5;
-		
-		yl = yr - h;
-		yr = yl + h;
-		yc = yr - h*.5;
+	static setWH = function(_w, _h) 
+	{
 		return self;
+	}
+	
+	
+	/// @param {real} width
+	static addW = function(_w) 
+	{
+		return setW(w + _w);
+	}
+	
+	
+	/// @param {real} height
+	static addH = function(_h) 
+	{
+		return setH(h + _h);
 	}
 	
 	
 	/// @param {real} angle
-	static setAngle = function(_angle) {
+	static setAngle = function(_angle) 
+	{
 		angle = _angle;
 		return self;
 	}
 	
 	
 	/// @param {real} angle
-	static addAngle = function(_angle) {
+	static addAngle = function(_angle) 
+	{
 		angle = angle + _angle;
 		return self;
 	}
@@ -287,7 +260,7 @@ function Lens(_view, _x, _y, _w, _h, _angle=0) constructor {
 	/// @param {real} forceY
 	/// @param {Asset.GMAnimcurve} animcurve
 	/// @param {Array<real>, Array<string>} channels name or index
-	static shake  = function(_duration, _unit, _forceX, _forceY=_forceX, _animcurve=acLensShake, _channels=[0, 1], _callback) {
+	static shake  = function(_time, _unit, _forceX, _forceY=_forceX, _animcurve=acLensShake, _channels=[0, 1], _callback) {
 		static f=function() {};
 		
 		// Solo si esta detenido
@@ -297,11 +270,11 @@ function Lens(_view, _x, _y, _w, _h, _angle=0) constructor {
 				animcurve_get_channel(_animcurve, _channels[1] )
 			];
 			// Segundos
-			if (_unit) {_duration *= gameSpeed; }
-			time_source_reconfigure(shakeStep, 1, time_source_units_frames, function(_duration, _forceX, _forceY, _channels, _callback) {
+			if (_unit) {_time *= gameSpeed; }
+			time_source_reconfigure(shakeStep, 1, time_source_units_frames, function(_time, _forceX, _forceY, _channels, _callback) {
 				shakeX = animcurve_channel_evaluate(_channels[0], shakeTime) * _forceX;
 				shakeY = animcurve_channel_evaluate(_channels[1], shakeTime) * _forceY;
-				var _s = (_duration * deltaTime);
+				var _s = (_time * deltaTime);
 				shakeTime = shakeTime + (1 / _s);
 				// Detener shake event
 				if (shakeTime >= 1) {
@@ -313,7 +286,7 @@ function Lens(_view, _x, _y, _w, _h, _angle=0) constructor {
 					shakeTime = 0;
 					time_source_stop(shakeStep);
 				}
-			}, [_duration, _forceX, _forceY, _chan, _callback ?? f], -1);
+			}, [_time, _forceX, _forceY, _chan, _callback ?? f], -1);
 			time_source_start(shakeStep); // Iniciar time source
 		}
 	}
@@ -334,7 +307,8 @@ function Lens(_view, _x, _y, _w, _h, _angle=0) constructor {
 	/// @param {real} resetTime	tiempo para comprobar si hay que reiniciar el proceso del animcurve
 	/// @param {Asset.GMAnimcurve} animcurve
 	/// @param {Array<real>, Array<string>} channels name or index
-	static follow = function(_speedX, _speedY=_speedX, _resetTime=5, _animcurve=acLensFollow, _channels=[0, 1]) {
+	static follow = function(_speedX, _speedY=_speedX, _resetTime=5, _animcurve=acLensFollow, _channels=[0, 1]) 
+	{
 		if (!isFollow() ) {
 			var _chan = [
 				animcurve_get_channel(_animcurve, _channels[0] ),
@@ -342,26 +316,22 @@ function Lens(_view, _x, _y, _w, _h, _angle=0) constructor {
 			];
 			
 			_speedX *= gameSpeed; _speedY *= gameSpeed;
-			time_source_reconfigure(followStep , 1, time_source_units_frames, function(_speedX, _speedY, _channels) {
+			time_source_reconfigure(followStep,          1, time_source_units_frames, function(_speedX, _speedY, _channels) {
 				var n = ds_list_size(followTargets);
 				if (n > 0) {
-					var _cx = animcurve_channel_evaluate(_channels[0], followTime[0] );
-					var _cy = animcurve_channel_evaluate(_channels[1], followTime[1] );
 					// Poner el origen en 0,0
-					followTargetX = 0;
-					followTargetY = 0;
-					
+					var _xt = 0, _yt = 0;
 					// Si se han movido los objetivos
 					#region Obtener posiciones
 					for (var i=0; i<n; i=i+1) {
 						var _ins = followTargets[| i];
 						if (is_struct(_ins) ) {
-							followTargetX += _ins.x;
-							followTargetY += _ins.y;
+							_xt += _ins.x;
+							_yt += _ins.y;
 						}
 						else if (instance_exists(_ins) ) {
-							followTargetX += _ins.x;
-							followTargetY += _ins.y;
+							_xt += _ins.x;
+							_yt += _ins.y;
 						}
 						else {
 							ds_list_delete(followTargets, i);
@@ -374,65 +344,60 @@ function Lens(_view, _x, _y, _w, _h, _angle=0) constructor {
 					
 					#region Actualizar valores
 					n = max(1, n);
-					followTargetX = followTargetX / n;
-					followTargetY = followTargetY / n;
-					
-					followTargetX = followTargetX - (xc + w*.5) + (zoomX / w*wscale);
-					followTargetY = followTargetY - (yc + h*.5) + (zoomY / h*hscale);
-					
+					_xt = (_xt / n) - getW();
+					_yt = (_yt / n) - getH();
+
 					#endregion
 					
 					
 					#region Limites
-					if (followLimitX != infinity) followTargetX = clamp(followTargetX, 0, followLimitX);
-					if (followLimitY != infinity) followTargetY = clamp(followTargetY, 0, followLimitY);
+					if (followLimitX != infinity) _xt = clamp(_xt, 0, followLimitX);
+					if (followLimitY != infinity) _yt = clamp(_yt, 0, followLimitY);
+					
+					followTargetX = _xt;
+					followTargetY = _yt;
 					
 					#endregion
 					
 					
 					#region Lerp y tiempo
-					//lens_trace("targetX: ", followTargetX);
-					followX = lerp(followX, followTargetX, _cx);
-					followY = lerp(followY, followTargetY, _cy);
-
-					followTime[0] = followTime[0] + (1 / _speedX * deltaTime);
-					followTime[1] = followTime[1] + (1 / _speedY * deltaTime);
+					var _cx = animcurve_channel_evaluate(_channels[0], followTime[0] );
+					var _cy = animcurve_channel_evaluate(_channels[1], followTime[1] );
+					var _x = lerp(x1, followTargetX - zoomX, _cx);
+					var _y = lerp(y1, followTargetY - zoomY, _cy);
+					
+					
+					setXY(_x, _y);
+					
+					followTime[0] = min(1, followTime[0] + (1 / _speedX * deltaTime) );
+					followTime[1] = min(1, followTime[1] + (1 / _speedY * deltaTime) );
 					
 					#endregion
 				// Si no hay elementos parar
 				} else time_source_stop(followStep);
-			}, [_speedX, _speedY, _chan], -1);
-			time_source_reconfigure(followAfter, _resetTime, time_source_units_frames, function() {
-				static start = false;
 				
-				if (followX == followAfterX && followY == followAfterY) {
-					if (start) {
-						followTime[0] = 0;
-						followTime[1] = 0;
-						followStop = true;
-					}
-					
-					start = true;
+				
+				lens_trace("follow");
+			}, [_speedX, _speedY, _chan], -1);
+			time_source_reconfigure(followSave, _resetTime, time_source_units_frames, function() {
+				if (followSaveX == followTargetX) && (followSaveY == followTargetY) {
+					followTime[0] = 0; 
+					followTime[1] = 0; 
 				}
-				else {
-					followAfterX = followX;
-					followAfterY = followY;
-				}
+				
+				followSaveX = followTargetX;
+				followSaveY = followTargetY;
 			}, [], -1, time_source_expire_after);
-			
+
 			time_source_start(followStep);  // Iniciar time source
 		}
 	}
 	
 		
 	/// @desc Deja de seguir a un objeto
-	static stopFollow = function() {
+	static stopFollow = function() 
+	{
 		// No reiniciar posicion x e y de follow
-		var _x = followX;
-		var _y = followY;
-		addXY(_x, _y);
-		followX = 0;
-		followY = 0;
 		followTime = [0, 0];
 		time_source_stop(followStep);
 	}
@@ -568,12 +533,12 @@ function Lens(_view, _x, _y, _w, _h, _angle=0) constructor {
 			#endregion
 			lens_trace("START");
 			time_source_reconfigure(zoomStep, 1, time_source_units_frames, function(_xTo, _yTo, _duration, _delay, _w, _h, _chan) {
-				var _xr = xc	;// xc;
-				var _yr = yc	;// yc;
-				if (zoomTime < .5) {
-					var _xAbs = (_xTo - w*.5) - _xr;
-					var _yAbs = (_yTo - h*.5) - _yr;
-					show_debug_message(string(_xAbs));
+				var _xr = x1 + w;
+				var _yr = y1 + h;
+				if (zoomTime < .50) {
+					var _xAbs = _xTo - _xr;// (_xTo - w*.5) - _xr;
+					var _yAbs = _yTo - _yr;// (_yTo - h*.5) - _yr;
+
 					var _px = _xAbs / w*wscale;
 					var _py = _yAbs / h*hscale;
 				
@@ -586,15 +551,15 @@ function Lens(_view, _x, _y, _w, _h, _angle=0) constructor {
 					var _yn = _py * _hn;
 	
 					// Set the origin based on where the object should be.
-					zoomX = _xTo - _xn - (xl + _wn);
-					zoomY = _yTo - _yn - (yl + _hn);
-					zoomTime += (1 / _duration * deltaTime);
+					zoomX = _xTo - _xn - (x1 + _wn);
+					zoomY = _yTo - _yn - (y1 + _hn);
+					zoomTime = zoomTime + (1.001 / _duration * deltaTime);
 				}
-				else if (zoomTime > .5 && zoomTime < 1) {
+				else if (zoomTime > .50 && zoomTime < 1.0) {
 					if (zoomDelay <= 0) {
-						var _xAbs = (_xTo - w*.5) - _xr;
-						var _yAbs = (_yTo - h*.5) - _yr;
-						show_debug_message(string(_xAbs));
+						var _xAbs = _xTo - _xr;// (_xTo - w*.5) - _xr;
+						var _yAbs = _yTo - _yr;// (_yTo - h*.5) - _yr;
+
 						var _px = _xAbs / w*wscale;
 						var _py = _yAbs / h*hscale;
 				
@@ -607,11 +572,11 @@ function Lens(_view, _x, _y, _w, _h, _angle=0) constructor {
 						var _yn = _py * _hn;
 	
 						// Set the origin based on where the object should be.
-						zoomX = _xTo - _xn - (xl + _wn);
-						zoomY = _yTo - _yn - (yl + _hn);
-						zoomTime += (1 / _duration * deltaTime);
+						zoomX = _xTo - _xn - (x1 + _wn);
+						zoomY = _yTo - _yn - (y1 + _hn);
+						zoomTime = zoomTime + (1.001 / _duration * deltaTime);
 					} else zoomDelay--;
-				} else if (zoomTime >= 1) {
+				} else if (zoomTime >= 1.0) {
 					zoomCallback(); // Ejecutar callback
 					zoomTime = 0;
 					wscale = _w;
@@ -621,7 +586,7 @@ function Lens(_view, _x, _y, _w, _h, _angle=0) constructor {
 
 					time_source_stop(zoomStep); // Detener timesource
 				}
-
+				lens_trace("zoom");
 			}, [_x, _y, _duration, _delay, wscale, hscale, _chan], -1);
 			time_source_start(zoomStep);
 		}
@@ -660,8 +625,8 @@ function Lens(_view, _x, _y, _w, _h, _angle=0) constructor {
 		"DeltaTime: " + string(deltaTime) +
 		"\ncamX: " + string(camera_get_view_x(camera) ) +
 		"\ncamY: " + string(camera_get_view_x(camera) ) +
-		"\nPositionsX: " + string(xl) + " - ["+ string(xc) + "] - " + string(xr) +
-		"\nPositionsY: " + string(yl) + " - ["+ string(yc) + "] - " + string(yr) +
+		"\nPositionsX: " + string(x1) + " - " + string(x2) +
+		"\nPositionsY: " + string(y1) + " - " + string(y2) +
 		"\nangle : " + string(angle) + 
 		"\nxangle: " + string(xangle) +
 		"\nyangle: " + string(yangle) +
@@ -676,21 +641,9 @@ function Lens(_view, _x, _y, _w, _h, _angle=0) constructor {
 		"\nShakeY: " + string(shakeY) +
 		
 		"\nFollowState: " + stateToString(time_source_get_state(followStep) ) +
-		"\nFollowX: " + string(followX) +
-		"\nFollowY: " + string(followY);
+		"\nFollowX: " + string(followTime[0]) +
+		"\nFollowY: " + string(followTime[1]);
 		return _always;
-	}
-	
-	
-	/// @desc Regresa el valor x de todos los eventos
-	static eventX = function() {
-		return (shakeX + followX + zoomX );
-	}
-	
-	
-	/// @desc Regresa el valor y de todos los eventos
-	static eventY = function() {
-		return (shakeY + followY + zoomY );
 	}
 
 
