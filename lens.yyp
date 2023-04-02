@@ -1,49 +1,44 @@
 {
   "resourceType": "GMProject",
-  "resourceVersion": "1.6",
+  "resourceVersion": "1.7",
   "name": "lens",
+  "AudioGroups": [
+    {"resourceType":"GMAudioGroup","resourceVersion":"1.3","name":"audiogroup_default","targets":-1,},
+  ],
+  "configs": {
+    "children": [],
+    "name": "Default",
+  },
+  "defaultScriptType": 1,
+  "Folders": [
+    {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Demo","folderPath":"folders/Demo.yy","order":1,},
+    {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Extensions","folderPath":"folders/Extensions.yy","order":0,},
+    {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Lens","folderPath":"folders/Extensions/Lens.yy","order":0,},
+    {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Lens Default Animcurves","folderPath":"folders/Extensions/Lens/Lens Default Animcurves.yy","order":2,},
+  ],
+  "IncludedFiles": [],
+  "isEcma": false,
+  "LibraryEmitters": [],
+  "MetaData": {
+    "IDEVersion": "2023.200.0.281",
+  },
   "resources": [
-    {"id":{"name":"Note1","path":"notes/Note1/Note1.yy",},"order":7,},
+    {"id":{"name":"Note1","path":"notes/Note1/Note1.yy",},"order":2,},
     {"id":{"name":"acLensFollow","path":"animcurves/acLensFollow/acLensFollow.yy",},"order":3,},
     {"id":{"name":"acLensShake","path":"animcurves/acLensShake/acLensShake.yy",},"order":0,},
     {"id":{"name":"obj_test","path":"objects/obj_test/obj_test.yy",},"order":0,},
     {"id":{"name":"spr_test1","path":"sprites/spr_test1/spr_test1.yy",},"order":2,},
     {"id":{"name":"spr_test2","path":"sprites/spr_test2/spr_test2.yy",},"order":3,},
-    {"id":{"name":"Lens","path":"scripts/Lens/Lens.yy",},"order":6,},
+    {"id":{"name":"lens","path":"scripts/lens/lens.yy",},"order":6,},
     {"id":{"name":"is_lens","path":"scripts/is_lens/is_lens.yy",},"order":5,},
     {"id":{"name":"obj_target","path":"objects/obj_target/obj_target.yy",},"order":1,},
-    {"id":{"name":"acLensZoomCenter","path":"animcurves/acLensZoomCenter/acLensZoomCenter.yy",},"order":1,},
+    {"id":{"name":"acLensZoom","path":"animcurves/acLensZoom/acLensZoom.yy",},"order":1,},
     {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},"order":4,},
   ],
-  "Options": [
-    {"name":"Linux","path":"options/linux/options_linux.yy",},
-    {"name":"macOS","path":"options/mac/options_mac.yy",},
-    {"name":"Windows","path":"options/windows/options_windows.yy",},
-    {"name":"operagx","path":"options/operagx/options_operagx.yy",},
-    {"name":"Main","path":"options/main/options_main.yy",},
-  ],
-  "defaultScriptType": 1,
-  "isEcma": false,
-  "configs": {
-    "name": "Default",
-    "children": [],
-  },
   "RoomOrderNodes": [
     {"roomId":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
   ],
-  "Folders": [
-    {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Demo","folderPath":"folders/Demo.yy","order":6,},
-    {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Lens","folderPath":"folders/Lens.yy","order":0,},
-    {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Lens Default Animcurves","folderPath":"folders/Lens/Lens Default Animcurves.yy","order":2,},
-  ],
-  "AudioGroups": [
-    {"resourceType":"GMAudioGroup","resourceVersion":"1.3","name":"audiogroup_default","targets":-1,},
-  ],
   "TextureGroups": [
-    {"resourceType":"GMTextureGroup","resourceVersion":"1.3","name":"Default","isScaled":true,"compressFormat":"bz2","loadType":"default","directory":"","autocrop":true,"border":2,"mipsToGenerate":0,"groupParent":null,"targets":-1,},
+    {"resourceType":"GMTextureGroup","resourceVersion":"1.3","name":"Default","autocrop":true,"border":2,"compressFormat":"bz2","directory":"","groupParent":null,"isScaled":true,"loadType":"default","mipsToGenerate":0,"targets":-1,},
   ],
-  "IncludedFiles": [],
-  "MetaData": {
-    "IDEVersion": "2022.1100.0.227",
-  },
 }

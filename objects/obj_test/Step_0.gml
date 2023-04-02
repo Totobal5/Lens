@@ -1,4 +1,5 @@
 // Feather ignore all
+/*
 if keyboard_check(ord("Q") ) {lensCamera.addX( 1); }
 if keyboard_check(ord("W") ) {lensCamera.addX(-1); }
 
@@ -12,7 +13,7 @@ if keyboard_check_pressed(ord("P") ) {
 
 if keyboard_check_pressed(ord("O") ) {
 	if (!lensCamera.isFollow()) {
-		lensCamera.follow(4, 4, 8);
+		lensCamera.follow(4, 4, 1);
 	}
 	else {
 		lensCamera.stopFollow ();

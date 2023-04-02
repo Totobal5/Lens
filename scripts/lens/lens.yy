@@ -1,11 +1,11 @@
 {
   "resourceType": "GMScript",
   "resourceVersion": "1.0",
-  "name": "Lens",
-  "isDnD": false,
+  "name": "lens",
   "isCompatibility": false,
+  "isDnD": false,
   "parent": {
     "name": "Lens",
-    "path": "folders/Lens.yy",
+    "path": "folders/Extensions/Lens.yy",
   },
 }

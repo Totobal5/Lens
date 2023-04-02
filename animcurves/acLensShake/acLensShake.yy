@@ -2,9 +2,8 @@
   "resourceType": "GMAnimCurve",
   "resourceVersion": "1.2",
   "name": "acLensShake",
-  "function": 0,
   "channels": [
-    {"resourceType":"GMAnimCurveChannel","resourceVersion":"1.0","name":"x","colour":4290799884,"visible":true,"points":[
+    {"resourceType":"GMAnimCurveChannel","resourceVersion":"1.0","name":"x","colour":4290799884,"points":[
         {"th0":-0.1,"th1":0.1,"tv0":0.0,"tv1":0.0,"x":0.0,"y":-1.0,},
         {"th0":-0.035877865,"th1":0.00038167834,"tv0":0.0,"tv1":0.0,"x":0.16030534,"y":0.93333334,},
         {"th0":-0.00038167834,"th1":0.013740459,"tv0":0.0,"tv1":0.0,"x":0.22328243,"y":-0.8333333,},
@@ -18,8 +17,8 @@
         {"th0":-0.026717544,"th1":0.004580152,"tv0":0.0,"tv1":0.0,"x":0.8683206,"y":-0.10333334,},
         {"th0":-0.004580152,"th1":0.013358784,"tv0":0.0,"tv1":0.0,"x":0.95038176,"y":0.071666665,},
         {"th0":-0.06679392,"th1":0.1,"tv0":0.0,"tv1":0.0,"x":1.0,"y":0.0,},
-      ],},
-    {"resourceType":"GMAnimCurveChannel","resourceVersion":"1.0","name":"y","colour":4281083598,"visible":true,"points":[
+      ],"visible":true,},
+    {"resourceType":"GMAnimCurveChannel","resourceVersion":"1.0","name":"y","colour":4281083598,"points":[
         {"th0":-0.1,"th1":0.1,"tv0":0.0,"tv1":0.0,"x":0.0,"y":-1.0,},
         {"th0":-0.035877865,"th1":0.00038167834,"tv0":0.0,"tv1":0.0,"x":0.16030534,"y":0.93333334,},
         {"th0":-0.00038167834,"th1":0.013740459,"tv0":0.0,"tv1":0.0,"x":0.22328243,"y":-0.8333333,},
@@ -33,10 +32,11 @@
         {"th0":-0.026717544,"th1":0.004580152,"tv0":0.0,"tv1":0.0,"x":0.8683206,"y":-0.10333334,},
         {"th0":-0.004580152,"th1":0.013358784,"tv0":0.0,"tv1":0.0,"x":0.95038176,"y":0.071666665,},
         {"th0":-0.06679392,"th1":0.1,"tv0":0.0,"tv1":0.0,"x":1.0,"y":0.0,},
-      ],},
+      ],"visible":true,},
   ],
+  "function": 0,
   "parent": {
     "name": "Lens Default Animcurves",
-    "path": "folders/Lens/Lens Default Animcurves.yy",
+    "path": "folders/Extensions/Lens/Lens Default Animcurves.yy",
   },
 }

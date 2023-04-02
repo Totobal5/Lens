@@ -1,1 +1,1 @@
-obj_test.lensCamera.addTarget(id);
+//obj_test.lensCamera.addTarget(id);

@@ -10,5 +10,5 @@ Try use all events at the same time!
 ");
 
 
-draw_text(8, 180, lensCamera);
+//draw_text(8, 180, lensCamera);
 draw_set_colour(c_white);

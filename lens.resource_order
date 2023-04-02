@@ -1,0 +1,17 @@
+{
+  "FolderOrderSettings": [
+    {"name":"Demo","order":1,"path":"folders/Demo.yy",},
+    {"name":"Lens Default Animcurves","order":2,"path":"folders/Extensions/Lens/Lens Default Animcurves.yy",},
+  ],
+  "ResourceOrderSettings": [
+    {"name":"Note1","order":2,"path":"notes/Note1/Note1.yy",},
+    {"name":"acLensFollow","order":3,"path":"animcurves/acLensFollow/acLensFollow.yy",},
+    {"name":"spr_test1","order":2,"path":"sprites/spr_test1/spr_test1.yy",},
+    {"name":"spr_test2","order":3,"path":"sprites/spr_test2/spr_test2.yy",},
+    {"name":"lens","order":6,"path":"scripts/lens/lens.yy",},
+    {"name":"is_lens","order":5,"path":"scripts/is_lens/is_lens.yy",},
+    {"name":"obj_target","order":1,"path":"objects/obj_target/obj_target.yy",},
+    {"name":"acLensZoom","order":1,"path":"animcurves/acLensZoom/acLensZoom.yy",},
+    {"name":"Room1","order":4,"path":"rooms/Room1/Room1.yy",},
+  ],
+}
